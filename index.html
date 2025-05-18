@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Heatmap Altcoins</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .heatmap-container {
+            max-height: 80vh;
+            overflow: auto;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: #2a2a2a;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        th {
+            background-color: #1e1e1e;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        th:first-child,
+        td:first-child {
+            background-color: #2a2a2a;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            font-weight: bold;
+            text-align: left;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #00ff00;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Heatmap Altcoins</h1>
+    <div class="heatmap-container">
+        <table id="heatmap-table"></table>
+    </div>
+    <div class="tooltip" id="tooltip"></div>
+    <div class="loading" id="loading">Загрузка... 0%</div>
+
+    <script>
+        const rowsCount = 300;
+        const colsCount = 40;
+        const table = document.getElementById("heatmap-table");
+        const loading = document.getElementById("loading");
+        const tooltip = document.getElementById("tooltip");
+
+        // Генерация случайного названия монеты
+        function generateRandomCoinName() {
+            const prefix = ["BTC", "ETH", "SOL", "XRP", "ADA", "DOGE", "DOT", "LINK", "MATIC", "SHIB"];
+            const suffix = ["USDT", "USD", "USDC", "DAI", "EUR", "GBP", "JPY", "AUD"];
+            return prefix[Math.floor(Math.random() * prefix.length)] +
+                Math.floor(Math.random() * 1000) +
+                suffix[Math.floor(Math.random() * suffix.length)];
+        }
+
+        // Генерация случайного цвета
+        function getRandomHSLColor(value) {
+            const hue = Math.max(0, 120 - (value * 1.2));
+            return `hsl(${hue}, 70%, 40%)`;
+        }
+
+        // Генерация случайного значения (0-100)
+        function getRandomValue() {
+            return Math.random() * 100;
+        }
+
+        // Создание заголовков
+        function createHeaders() {
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+
+            const nameHeader = document.createElement("th");
+            nameHeader.textContent = "Coin";
+            headerRow.appendChild(nameHeader);
+
+            for (let i = 0; i < colsCount; i++) {
+                const th = document.createElement("th");
+                th.textContent = `${i + 1}`;
+                headerRow.appendChild(th);
+            }
+
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+        }
+
+        // Постепенная генерация таблицы
+        function generateTableWithProgress() {
+            if (!table || !loading) {
+                console.error("[Heatmap] Не найдены элементы: table или loading");
+                return;
+            }
+
+            let progress = 0;
+            const tbody = document.createElement("tbody");
+            const total = rowsCount * colsCount;
+
+            function step() {
+                if (progress < rowsCount) {
+                    const tr = document.createElement("tr");
+
+                    const coinName = document.createElement("td");
+                    coinName.textContent = generateRandomCoinName();
+                    tr.appendChild(coinName);
+
+                    for (let col = 0; col < colsCount; col++) {
+                        const td = document.createElement("td");
+                        const value = getRandomValue();
+                        td.style.backgroundColor = getRandomHSLColor(value);
+                        td.title = `Value: ${value.toFixed(2)}`;
+
+                        // Подсказка при наведении
+                        td.addEventListener("mouseover", () => {
+                            tooltip.textContent = `Value: ${value.toFixed(2)}`;
+                            tooltip.style.display = "block";
+                        });
+
+                        td.addEventListener("mousemove", (e) => {
+                            tooltip.style.left = e.pageX + 10 + "px";
+                            tooltip.style.top = e.pageY + 10 + "px";
+                        });
+
+                        td.addEventListener("mouseout", () => {
+                            tooltip.style.display = "none";
+                        });
+
+                        tr.appendChild(td);
+                    }
+
+                    tbody.appendChild(tr);
+                    table.appendChild(tbody);
+                    progress++;
+                    loading.textContent = `Загрузка... ${Math.floor((progress / rowsCount) * 100)}%`;
+                } else {
+                    loading.style.display = "none";
+                    console.log("[Heatmap] Таблица успешно загружена");
+                }
+
+                if (progress < rowsCount) {
+                    requestAnimationFrame(step);
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        // Инициализация таблицы
+        window.onload = () => {
+            console.log("[Heatmap] window.onload вызван");
+            if (!document.getElementById("heatmap-table")) {
+                console.error("[Heatmap] #heatmap-table не найден в DOM");
+                return;
+            }
+
+            createHeaders();
+            generateTableWithProgress();
+        };
+    </script>
+</body>
+
+</html>
