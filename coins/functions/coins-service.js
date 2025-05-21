@@ -8,6 +8,7 @@ async function fetchDominantCoinsFromDb(dominant, coinType) {
     throw new Error("Missing COINS API configuration");
   }
 
+  console.log("COINS API", config.coinsApi);
   const url = `${config.coinsApi}/api/coins/sorted?dominant=${dominant}&coinType=${coinType}`;
 
   const response = await fetch(url);
