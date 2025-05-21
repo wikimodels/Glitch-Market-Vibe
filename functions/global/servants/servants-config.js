@@ -83,6 +83,7 @@ class ServantsConfigOperator {
       };
 
       console.log("✅ ServantsConfigOperator → initialized...");
+      console.log("✅ Coins API", ServantsConfigOperator.config.coinsApi);
     } catch (err) {
       console.error("Failed to initialize configuration:", err);
       throw err;
