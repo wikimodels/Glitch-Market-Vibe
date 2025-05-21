@@ -1,13 +1,14 @@
 // jobs/oi.js
 const { CronJob } = require("cron");
-const { fetchKlineData } = require("../kline/functions/fetch-kline-data.js");
-const { setKlineCache } = require("../kline/functions/kline-cache.js");
-const { UnixToNamedTimeRu } = require("../functions/shared/time-converter.js");
+const { fetchKlineData } = require("../functions/fetch-kline-data.js");
+const { setKlineCache } = require("../functions/kline-cache.js");
+const {
+  UnixToNamedTimeRu,
+} = require("../../functions/shared/time-converter.js");
 const {
   runWithOptionalDelay,
-} = require("../functions/shared/delay/run-with-optional-delay.js");
-
-const limit = process.env.KLINE_LIMIT || 53;
+} = require("../../functions/shared/delay/run-with-optional-delay.js");
+const ServantsConfigOperator = require("../../functions/global/servants/servants-config.js");
 
 async function refresh(timeframe) {
   const delay = getDelayForTimeframe(timeframe);
@@ -19,6 +20,7 @@ async function refresh(timeframe) {
 }
 
 async function refresh(timeframe) {
+  const limit = ServantsConfigOperator.getConfig().limitKline;
   runWithOptionalDelay(timeframe, async () => {
     try {
       const data = await fetchKlineData(timeframe, limit);

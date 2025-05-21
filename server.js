@@ -26,7 +26,7 @@ const {
 const {
   setInitialColors,
 } = require("./functions/shared/colors/colors-cache.js");
-const { scheduleAllKlineJobs } = require("./jobs/kline.js");
+const { scheduleAllKlineJobs } = require("./kline/jobs/kline.js");
 
 async function main() {
   try {

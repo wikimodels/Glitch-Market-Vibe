@@ -1,13 +1,13 @@
 // initializeOiStore.js
+const ServantsConfigOperator = require("../../functions/global/servants/servants-config.js");
 const { fetchKlineData } = require("../functions/fetch-kline-data.js");
 const { setKlineCache, VALID_TIMEFRAMES } = require("./kline-cache.js");
 const {
   runWithOptionalDelay,
 } = require("../../functions/shared/delay/run-with-optional-delay.js");
 
-const limit = process.env.KLINE_LIMIT || 53;
-
 async function initializeKlineStore() {
+  const limit = ServantsConfigOperator.getConfig().limitKline;
   for (const timeframe of VALID_TIMEFRAMES) {
     runWithOptionalDelay(timeframe, async () => {
       try {
