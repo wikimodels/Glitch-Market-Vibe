@@ -1,9 +1,9 @@
 const {
   getColorFromChangeValue,
-} = require("../shared/colors/get-color-from-change-value.js");
+} = require("../../../functions/shared/colors/get-color-from-change-value.js");
 const {
   getColorFromValue,
-} = require("../shared/colors/get-color-from-value.js");
+} = require("../../../functions/shared/colors/get-color-from-value.js");
 
 function normalizeKlineData(marketDataArray) {
   return marketDataArray.map((coinData) => {

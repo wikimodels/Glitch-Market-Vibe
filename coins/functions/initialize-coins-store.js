@@ -1,5 +1,4 @@
-// app/initialize-app.js
-const { initializeCoinsCache } = require("../coins/functions/coins-service.js");
+const { initializeCoinsCache } = require("./coins-service.js");
 
 async function initializeCoinsStore() {
   await initializeCoinsCache();

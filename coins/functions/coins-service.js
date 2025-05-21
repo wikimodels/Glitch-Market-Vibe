@@ -1,20 +1,14 @@
-// coinService.js
-
-const coinsCache = require("./coins-cache");
+const { binanceDominantCache, bybitDominantCache } = require("./coins-cache");
 const ServantsConfigOperator = require("../../functions/global/servants/servants-config");
-const { getFailedBinancePerpCoins } = require("./failed-binance-perp-coins");
-const { getFailedBinanceSpotCoins } = require("./failed-binance-sport-coins");
-const { getFailedBybitPerpCoins } = require("./failed-bybit-perp-coins");
-const { getFailedBybitSpotCoins } = require("./failed-bybit-sport-coins");
 
-// Function to fetch coins from the database
-async function fetchCoinsFromDb() {
+// Fetch coins from DB
+async function fetchDominantCoinsFromDb(dominant, coinType) {
   const config = ServantsConfigOperator.getConfig();
-  const url = config.coinsApi;
-
-  if (!url) {
-    throw new Error("Missing COINS URL configuration");
+  if (!config?.coinsApi) {
+    throw new Error("Missing COINS API configuration");
   }
+
+  const url = `${config.coinsApi}/api/coins/sorted?dominant=${dominant}&coinType=${coinType}`;
 
   const response = await fetch(url);
 
@@ -23,79 +17,60 @@ async function fetchCoinsFromDb() {
     throw new Error(`Request failed: ${errorText}`);
   }
 
-  const coinsData = await response.json();
-  return coinsData.coins;
+  return await response.json();
 }
 
 async function initializeCoinsCache() {
-  const coins = await fetchCoinsFromDb();
-  storeCoinsInCache(coins);
+  const [
+    binanceDominantPerps,
+    binanceDominantSpot,
+    bybitDominantPerps,
+    bybitDominantSpot,
+  ] = await Promise.all([
+    fetchDominantCoinsFromDb("Binance", "perp"),
+    fetchDominantCoinsFromDb("Binance", "spot"),
+    fetchDominantCoinsFromDb("Bybit", "perp"),
+    fetchDominantCoinsFromDb("Bybit", "spot"),
+  ]);
+
+  binanceDominantCache.binancePerp.set(
+    "coins",
+    binanceDominantPerps.binanceCoins
+  );
+  binanceDominantCache.binanceSpot.set(
+    "coins",
+    binanceDominantSpot.binanceCoins
+  );
+  binanceDominantCache.bybitPerp.set("coins", binanceDominantPerps.bybitCoins);
+  binanceDominantCache.bybitSpot.set("coins", binanceDominantSpot.bybitCoins);
+
+  //BYBIT DOMINANT
+  bybitDominantCache.binancePerp.set("coins", bybitDominantPerps.binanceCoins);
+  bybitDominantCache.binanceSpot.set("coins", bybitDominantSpot.binanceCoins);
+  bybitDominantCache.bybitPerp.set("coins", bybitDominantPerps.bybitCoins);
+  bybitDominantCache.bybitSpot.set("coins", bybitDominantSpot.bybitCoins);
 }
 
-// Function to store coins in the cache
-function storeCoinsInCache(coins) {
-  coinsCache.set("coins", coins);
-}
-
-// Function to retrieve coins from the cache
-function getCoinsFromCache() {
-  return coinsCache.get("coins");
-}
-
-// Function to reset the coins cache
-function resetCoinsCache() {
-  cache.del("coins");
-}
-
-function fetchDominantCoinsFromCache(dominant = "Binance") {
-  const coins = getCoinsFromCache();
-
-  const isBinance = (coin) => coin?.exchanges?.includes?.("Binance");
-  const isBybit = (coin) => coin?.exchanges?.includes?.("Bybit");
-
-  let binanceCoins, bybitCoins;
-
-  if (dominant === "Binance") {
-    binanceCoins = coins.filter(isBinance);
-    bybitCoins = coins.filter((c) => isBybit(c) && !isBinance(c));
-  } else if (dominant === "Bybit") {
-    bybitCoins = coins.filter(isBybit);
-    binanceCoins = coins.filter((c) => isBinance(c) && !isBybit(c));
-  } else {
-    throw new Error("Invalid dominant exchange specified");
-  }
-
-  const failedBinancePerpSymbols = getFailedBinancePerpCoins();
-  const failedBinanceSpotSymbols = getFailedBinanceSpotCoins();
-  const failedBybitPerpSymbols = getFailedBybitPerpCoins();
-  const failedBybitSpotSymbols = getFailedBybitSpotCoins();
-
-  const binancePerpCoins = binanceCoins.filter(
-    (c) => !failedBinancePerpSymbols.includes(c.symbol)
-  );
-  const binanceSpotCoins = binanceCoins.filter(
-    (c) => !failedBinanceSpotSymbols.includes(c.symbol)
-  );
-  const bybitPerpCoins = bybitCoins.filter(
-    (c) => !failedBybitPerpSymbols.includes(c.symbol)
-  );
-  const bybitSpotCoins = bybitCoins.filter(
-    (c) => !failedBybitSpotSymbols.includes(c.symbol)
-  );
-
+function getBinanceDominantCache() {
   return {
-    binancePerpCoins,
-    binanceSpotCoins,
-    bybitPerpCoins,
-    bybitSpotCoins,
+    binancePerps: binanceDominantCache.binancePerp.get("coins"),
+    binanceSpot: binanceDominantCache.binanceSpot.get("coins"),
+    bybitPerps: binanceDominantCache.bybitPerp.get("coins"),
+    bybitSpot: binanceDominantCache.bybitSpot.get("coins"),
+  };
+}
+
+function getBybitDominantCache() {
+  return {
+    binancePerps: bybitDominantCache.binancePerp.get("coins"),
+    binanceSpot: bybitDominantCache.binanceSpot.get("coins"),
+    bybitPerps: bybitDominantCache.bybitPerp.get("coins"),
+    bybitSpot: bybitDominantCache.bybitSpot.get("coins"),
   };
 }
 
 module.exports = {
-  fetchCoinsFromDb,
-  storeCoinsInCache,
-  getCoinsFromCache,
-  resetCoinsCache,
-  fetchDominantCoinsFromCache,
   initializeCoinsCache,
+  getBinanceDominantCache,
+  getBybitDominantCache,
 };

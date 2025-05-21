@@ -1,10 +1,12 @@
 const {
   validateRequestParams,
-} = require("../functions/utility/validate-request-params.js");
+} = require("../../functions/shared/validators/validate-request-params.js");
 
-const { getKlineCache } = require("../functions/kline/kline-cache.js");
+const { getKlineCache } = require("../functions/kline-cache.js");
 
-const { initializeKlineStore } = require("../app/initialize-kline-store.js");
+const {
+  initializeKlineStore,
+} = require("../functions/initialize-kline-store.js");
 
 async function getKlineDataController(req, res, next) {
   try {

@@ -1,11 +1,11 @@
 // jobs/oi.js
 const { CronJob } = require("cron");
-const { fetchKlineData } = require("../functions/kline/fetch-kline-data");
-const { setKlineCache } = require("../functions/kline/kline-cache");
-const { UnixToNamedTimeRu } = require("../functions/utility/time-converter");
+const { fetchKlineData } = require("../kline/functions/fetch-kline-data.js");
+const { setKlineCache } = require("../kline/functions/kline-cache.js");
+const { UnixToNamedTimeRu } = require("../functions/shared/time-converter.js");
 const {
   runWithOptionalDelay,
-} = require("../functions/utility/delay/run-with-optional-delay");
+} = require("../functions/shared/delay/run-with-optional-delay.js");
 
 const limit = process.env.KLINE_LIMIT || 53;
 

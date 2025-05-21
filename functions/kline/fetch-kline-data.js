@@ -1,7 +1,6 @@
 // open-interest.service.js
-const {
-  fetchDominantCoinsFromCache,
-} = require("../../coins/functions/coins-service");
+const coinsCache = require("./coins-cache");
+const { addFailedCoinsToCache } = require("../coins/functions/coins-service");
 const {
   fetchBinancePerpKlines,
 } = require("../binance/fetch-binance-perp-klines");
@@ -25,25 +24,7 @@ const {
   handleFetchWithFailureTracking,
 } = require("./handle-fetch-with-failure-tracking");
 
-const {
-  addFailedBinancePerpCoin,
-} = require("../../coins/functions/failed-binance-perp-coins");
-const {
-  addFailedBinanceSpotCoin,
-} = require("../../coins/functions/failed-binance-sport-coins");
-const {
-  addFailedBybitPerpCoin,
-} = require("../../coins/functions/failed-bybit-perp-coins");
-const {
-  addFailedBybitSpotCoin,
-} = require("../../coins/functions/failed-bybit-sport-coins");
-
 async function fetchKlineData(timeframe, limit) {
-  // 1. Choose the correct cache-fetch function based on timeframe
-
-  const { binancePerpCoins, binanceSpotCoins, bybitPerpCoins, bybitSpotCoins } =
-    fetchDominantCoinsFromCache();
-
   const [
     binanceKlinePerpData,
     bybitKlinePerpData,
@@ -52,31 +33,39 @@ async function fetchKlineData(timeframe, limit) {
   ] = await Promise.all([
     handleFetchWithFailureTracking(
       fetchBinancePerpKlines,
-      binancePerpCoins.slice(0, 6),
+      coinsCache.binancePerpCoins(),
       timeframe,
       limit,
-      addFailedBinancePerpCoin
+      addFailedCoinsToCache,
+      "perp",
+      "Binance"
     ),
     handleFetchWithFailureTracking(
       fetchBybitPerpKlines,
-      bybitPerpCoins.slice(0, 6),
+      coinsCache.bybitPerpCoins(),
       timeframe,
       limit,
-      addFailedBybitPerpCoin
+      addFailedCoinsToCache,
+      "perp",
+      "Bybit"
     ),
     handleFetchWithFailureTracking(
       fetchBinanceSpotKlines,
-      binanceSpotCoins.slice(0, 2),
+      coinsCache.binanceSpotCoins(),
       timeframe,
       limit,
-      addFailedBinanceSpotCoin
+      addFailedCoinsToCache,
+      "spot",
+      "Binance"
     ),
     handleFetchWithFailureTracking(
       fetchBybitSpotKlines,
-      bybitSpotCoins.slice(0, 2),
+      coinsCache.bybitSpotCoins(),
       timeframe,
       limit,
-      addFailedBybitSpotCoin
+      addFailedCoinsToCache,
+      "spot",
+      "Bybit"
     ),
   ]);
 

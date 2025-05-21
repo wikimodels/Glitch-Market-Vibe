@@ -1,12 +1,9 @@
 // initializeOiStore.js
-const { fetchKlineData } = require("../functions/kline/fetch-kline-data.js");
-const {
-  setKlineCache,
-  VALID_TIMEFRAMES,
-} = require("../functions/kline/kline-cache.js");
+const { fetchKlineData } = require("../functions/fetch-kline-data.js");
+const { setKlineCache, VALID_TIMEFRAMES } = require("./kline-cache.js");
 const {
   runWithOptionalDelay,
-} = require("../functions/utility/delay/run-with-optional-delay.js");
+} = require("../../functions/shared/delay/run-with-optional-delay.js");
 
 const limit = process.env.KLINE_LIMIT || 53;
 

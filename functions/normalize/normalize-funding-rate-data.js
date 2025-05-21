@@ -1,11 +1,11 @@
 const {
   getColorFromChangeValue,
-} = require("../utility/colors/get-color-from-change-value.js");
+} = require("../shared/colors/get-color-from-change-value.js");
 
 const {
   getColorFromValue,
-} = require("../utility/colors/get-color-from-value.js");
-const { getColorsCache } = require("../utility/colors/colors-cache.js");
+} = require("../shared/colors/get-color-from-value.js");
+const { getColorsCache } = require("../shared/colors/colors-cache.js");
 
 /**
  * Normalize funding rate data to support consistent coloring and display.

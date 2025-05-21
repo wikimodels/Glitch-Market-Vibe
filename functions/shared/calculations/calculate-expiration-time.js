@@ -1,4 +1,4 @@
-const { getIntervalDurationMs } = require("./get-interval-duration-ms.js");
+const { getIntervalDurationMs } = require("../get-interval-duration-ms.js");
 
 function calculateExpirationTime(openTime, timeframe) {
   if (typeof openTime !== "number" && typeof openTime !== "string") {

@@ -11,21 +11,21 @@ const {
 
 const { initializeTelegramBots } = require("./app/initialize-telegram-bots.js");
 
-const { initializeCoinsStore } = require("./app/initialize-coins-store.js");
+const {
+  initializeCoinsStore,
+} = require("./coins/functions/initialize-coins-store.js");
 
-const { initializeOpenInterestStore } = require("./app/initialize-oi-store.js");
+const {
+  initializeKlineStore,
+} = require("./kline/functions/initialize-kline-store.js");
 
-const { initializeFundingRateStore } = require("./app/initialize-fr-store.js");
+//const { scheduleAllOiJobs } = require("./jobs/oi.js");
 
-const { initializeKlineStore } = require("./app/initialize-kline-store.js");
-
-const { scheduleAllOiJobs } = require("./jobs/oi.js");
-
-const { scheduleAllFrJobs } = require("./jobs/fr.js");
+//const { scheduleAllFrJobs } = require("./jobs/fr.js");
 
 const {
   setInitialColors,
-} = require("./functions/utility/colors/colors-cache.js");
+} = require("./functions/shared/colors/colors-cache.js");
 const { scheduleAllKlineJobs } = require("./jobs/kline.js");
 
 async function main() {
@@ -33,8 +33,8 @@ async function main() {
     await initializeServantsConfig();
 
     await initializeCoinsStore();
-    await initializeOpenInterestStore();
-    await initializeFundingRateStore();
+    //await initializeOpenInterestStore();
+    //await initializeFundingRateStore();
     await initializeKlineStore();
 
     const app = await initializeApp();

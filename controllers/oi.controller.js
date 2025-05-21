@@ -1,6 +1,6 @@
 const {
   validateRequestParams,
-} = require("../functions/utility/validate-request-params");
+} = require("../functions/utility/validate-request-params.js");
 
 const { getOICache } = require("../functions/oi/oi-cache");
 

@@ -1,9 +1,13 @@
 const {
   getIntervalDurationMs,
-} = require("../utility/get-interval-duration-ms.js");
-const { calculateCloseTime } = require("../utility/calculate-close-time.js");
-const { getBybitKlineInterval } = require("./get-bybit-kline-interval.js");
-const { bybitPerpUrl } = require("./bybit-perps-url.js");
+} = require("../../../functions/shared/get-interval-duration-ms.js");
+const {
+  calculateCloseTime,
+} = require("../../../functions/shared/calculations/calculate-close-time.js");
+const {
+  getBybitKlineInterval,
+} = require("../intervals/get-bybit-kline-interval");
+const { bybitPerpUrl } = require("../../urls/bybit-perps-url.js");
 
 async function fetchBybitPerpKlines(coins, timeframe, limit) {
   const intervalMs = getIntervalDurationMs(timeframe);
@@ -40,6 +44,9 @@ async function fetchBybitPerpKlines(coins, timeframe, limit) {
         .map((entry) => ({
           openTime: Number(entry[0]),
           closeTime: calculateCloseTime(Number(entry[0]), intervalMs),
+          openPrice: Number(entry[1]),
+          highPrice: Number(entry[2]),
+          lowPrice: Number(entry[3]),
           closePrice: Number(entry[4]),
           quoteVolume: Number(entry[6]),
         }));

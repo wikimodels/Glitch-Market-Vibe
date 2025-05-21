@@ -1,5 +1,7 @@
-const { getBybitKlineInterval } = require("./get-bybit-kline-interval.js");
-const { bybitSpotUrl } = require("./bybit-spot-url.js");
+const {
+  getBybitKlineInterval,
+} = require("../intervals/get-bybit-kline-interval.js");
+const { bybitSpotUrl } = require("../../urls/bybit-spot-url.js");
 
 async function fetchBybitSpotKlines(coins, timeframe, limit) {
   const bybitInterval = getBybitKlineInterval(timeframe);

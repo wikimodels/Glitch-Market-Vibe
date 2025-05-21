@@ -1,12 +1,13 @@
-const { getBinanceKlineInterval } = require("./get-binance-kline-interval.js");
-const { binancePerpsUrl } = require("./binance-perps-url.js");
+const {
+  getBinanceKlineInterval,
+} = require("../intervals/get-binance-kline-interval.js");
+const { binanceSpotUrl } = require("../../urls/binance-sport-url.js");
 
-async function fetchBinancePerpKlines(coins, timeframe, limit) {
+async function fetchBinanceSpotKlines(coins, timeframe, limit) {
   const binanceInterval = getBinanceKlineInterval(timeframe);
 
   const promises = coins.map(async (coin) => {
     try {
-      // Configure headers for Binance
       const headers = new Headers();
       headers.set(
         "User-Agent",
@@ -17,7 +18,7 @@ async function fetchBinancePerpKlines(coins, timeframe, limit) {
       headers.set("Origin", "https://www.binance.com");
       headers.set("Referer", "https://www.binance.com/");
 
-      const url = binancePerpsUrl(coin.symbol, binanceInterval, limit);
+      const url = binanceSpotUrl(coin.symbol, binanceInterval, limit);
 
       const response = await fetch(url, { headers });
       if (!response.ok) {
@@ -37,31 +38,11 @@ async function fetchBinancePerpKlines(coins, timeframe, limit) {
 
       const data = responseData
         .sort((a, b) => a[0] - b[0])
-        .map((entry) => {
-          const baseVolume = parseFloat(entry[5]);
-          const takerBuyBase = parseFloat(entry[9]);
-          const takerBuyQuote = parseFloat(entry[10]);
-          const totalQuoteVolume = parseFloat(entry[7]);
-
-          const buyerRatio =
-            baseVolume > 0
-              ? Math.round((takerBuyBase / baseVolume) * 100 * 100) / 100
-              : 0;
-
-          const sellerQuoteVolume = (totalQuoteVolume - takerBuyQuote).toFixed(
-            2
-          );
-          const volumeDelta = (takerBuyQuote - sellerQuoteVolume).toFixed(2);
-
-          return {
-            openTime: parseFloat(entry[0]),
-            closeTime: parseFloat(entry[6]),
-            closePrice: parseFloat(entry[4]),
-            quoteVolume: parseFloat(totalQuoteVolume),
-            buyerRatio: parseFloat(buyerRatio),
-            volumeDelta: parseFloat(volumeDelta),
-          };
-        });
+        .map((entry) => ({
+          symbol: coin.symbol,
+          openTime: parseFloat(entry[0]),
+          closePrice: parseFloat(entry[4]),
+        }));
 
       return {
         success: true,
@@ -82,4 +63,4 @@ async function fetchBinancePerpKlines(coins, timeframe, limit) {
   return Promise.all(promises);
 }
 
-module.exports = { fetchBinancePerpKlines };
+module.exports = { fetchBinanceSpotKlines };
